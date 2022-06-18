@@ -10,7 +10,7 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { faAngleDoubleDown, faAngleDoubleUp } from "@fortawesome/free-solid-svg-icons"
-import { InputLabel, MenuItem, Select } from "@material-ui/core"
+import { Input, InputLabel, MenuItem, Select } from "@material-ui/core"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -22,6 +22,23 @@ export const HomeBoardPage: React.FC = () => {
     void getStudents()
   }, [getStudents])
 
+  const [query, setQuery] = React.useState("")
+  const [finalData, setFinalData] = React.useState("")
+
+  const onSearchChange = (event) => {
+    const value = event.target.value
+    setQuery(value)
+    const results = data?.students.filter((item) => {
+      const regex = new RegExp(value, "gi")
+      let fullname = item.first_name + " " + item.last_name
+      return fullname.match(regex)
+    })
+    console.log(results)
+    setFinalData(results)
+  }
+
+  const resultData = finalData.length === 0 && !query ? data?.students : finalData
+
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
@@ -31,11 +48,11 @@ export const HomeBoardPage: React.FC = () => {
       setToggleSort(!toggleSort)
       namevalue === "first_name"
         ? toggleSort
-          ? data?.students.sort((b, a) => a.first_name.localeCompare(b.first_name))
-          : data?.students.sort((a, b) => a.first_name.localeCompare(b.first_name))
+          ? resultData.sort((b, a) => a.first_name.localeCompare(b.first_name))
+          : resultData.sort((a, b) => a.first_name.localeCompare(b.first_name))
         : toggleSort
-        ? data?.students.sort((b, a) => a.last_name.localeCompare(b.last_name))
-        : data?.students.sort((a, b) => a.last_name.localeCompare(b.last_name))
+        ? resultData.sort((b, a) => a.last_name.localeCompare(b.last_name))
+        : resultData.sort((a, b) => a.last_name.localeCompare(b.last_name))
     }
   }
 
@@ -52,7 +69,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} namevalue={namevalue} handleNameType={handleNameType} toggleSort={toggleSort} />
+        <Toolbar onItemClick={onToolbarAction} namevalue={namevalue} handleNameType={handleNameType} toggleSort={toggleSort} onSearchChange={onSearchChange} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -60,9 +77,9 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && resultData && (
           <>
-            {data.students.map((s) => (
+            {resultData.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
@@ -84,7 +101,7 @@ interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, namevalue, handleNameType, toggleSort } = props
+  const { onItemClick, namevalue, handleNameType, toggleSort, onSearchChange } = props
 
   return (
     <S.ToolbarContainer>
@@ -98,7 +115,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         </S.Button>
       </div>
       <div>
-        <input placeholder="Enter Name ..." />
+        <S.Input onChange={onSearchChange} sx={{ p: 1 }} placeholder="Search by name" />
       </div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
@@ -135,6 +152,15 @@ const S = {
       padding: 5px;
       color: #fff;
       margin-right: 15px;
+    }
+  `,
+
+  Input: styled(Input)`
+    && {
+      color: #fff;
+      MuiInputBase-root: {
+        color: red;
+      }
     }
   `,
 }
