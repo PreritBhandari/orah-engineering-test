@@ -9,10 +9,14 @@ import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
+import { faAngleDoubleDown, faAngleDoubleUp } from "@fortawesome/free-solid-svg-icons"
+import { InputLabel, MenuItem, Select } from "@material-ui/core"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [toggleSort, setToggleSort] = useState(false)
+  const [namevalue, setNameValue] = React.useState("first_name")
 
   useEffect(() => {
     void getStudents()
@@ -22,6 +26,17 @@ export const HomeBoardPage: React.FC = () => {
     if (action === "roll") {
       setIsRollMode(true)
     }
+
+    if (action === "sort") {
+      setToggleSort(!toggleSort)
+      namevalue === "first_name"
+        ? toggleSort
+          ? data?.students.sort((b, a) => a.first_name.localeCompare(b.first_name))
+          : data?.students.sort((a, b) => a.first_name.localeCompare(b.first_name))
+        : toggleSort
+        ? data?.students.sort((b, a) => a.last_name.localeCompare(b.last_name))
+        : data?.students.sort((a, b) => a.last_name.localeCompare(b.last_name))
+    }
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
@@ -30,10 +45,14 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const handleNameType = (event) => {
+    setNameValue(event.target.value)
+  }
+
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar onItemClick={onToolbarAction} namevalue={namevalue} handleNameType={handleNameType} toggleSort={toggleSort} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -65,11 +84,22 @@ interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick } = props
+  const { onItemClick, namevalue, handleNameType, toggleSort } = props
+
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First Name</div>
-      <div>Search</div>
+      <div>
+        <S.Select value={namevalue} onChange={handleNameType}>
+          <MenuItem value={"first_name"}>By first name</MenuItem>
+          <MenuItem value={"last_name"}>By last name</MenuItem>
+        </S.Select>
+        <S.Button onClick={() => onItemClick("sort")}>
+          {toggleSort ? <FontAwesomeIcon size="2x" icon={faAngleDoubleDown} /> : <FontAwesomeIcon size="2x" icon={faAngleDoubleUp} />}
+        </S.Button>
+      </div>
+      <div>
+        <input placeholder="Enter Name ..." />
+      </div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
@@ -97,6 +127,14 @@ const S = {
       padding: ${Spacing.u2};
       font-weight: ${FontWeight.strong};
       border-radius: ${BorderRadius.default};
+    }
+  `,
+
+  Select: styled(Select)`
+    && {
+      padding: 5px;
+      color: #fff;
+      margin-right: 15px;
     }
   `,
 }
