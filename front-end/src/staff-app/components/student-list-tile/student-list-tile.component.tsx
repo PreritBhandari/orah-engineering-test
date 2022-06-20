@@ -1,16 +1,41 @@
-import React from "react"
+import React, { useState } from "react"
 import styled from "styled-components"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Images } from "assets/images"
 import { Colors } from "shared/styles/colors"
 import { Person, PersonHelper } from "shared/models/person"
+import { Roll } from "shared/models/roll"
 import { RollStateSwitcher } from "staff-app/components/roll-state/roll-state-switcher.component"
 
 interface Props {
   isRollMode?: boolean
   student: Person
 }
-export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
+
+var finalData = []
+
+export const StudentListTile: React.FC<Props> = ({ isRollMode, student, setRollStates }) => {
+  const onStateChange = (next) => {
+    let newList = []
+    student.present = 0
+    student.late = 0
+    student.absent = 0
+
+    next === "present" ? (student.present += 1) : next === "late" ? (student.late += 1) : next === "absent" ? (student.absent += 1) : null
+
+    newList.push(student)
+    let index = finalData ? finalData.findIndex((i) => i[0].id == student.id) : null
+    index === -1 ? finalData.push(newList) : null
+
+    let present = finalData.filter((res) => res[0].present === 1)
+    let absent = finalData.filter((res) => res[0].absent === 1)
+    let late = finalData.filter((res) => res[0].late === 1)
+
+    let rollStates = [present.length, late.length, absent.length]
+    // localStorage.setItem("rollStates", JSON.stringify(rollStates))
+    setRollStates(rollStates)
+    // localStorage.setItem("rollData", JSON.stringify(finalData))
+  }
   return (
     <S.Container>
       <S.Avatar url={Images.avatar}></S.Avatar>
@@ -19,7 +44,7 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
       </S.Content>
       {isRollMode && (
         <S.Roll>
-          <RollStateSwitcher />
+          <RollStateSwitcher onStateChange={onStateChange} />
         </S.Roll>
       )}
     </S.Container>

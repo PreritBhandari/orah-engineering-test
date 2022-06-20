@@ -14,11 +14,17 @@ export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", si
     const states: RolllStateType[] = ["present", "late", "absent"]
     if (rollState === "unmark" || rollState === "absent") return states[0]
     const matchingIndex = states.findIndex((s) => s === rollState)
+    console.log(states)
     return matchingIndex > -1 ? states[matchingIndex + 1] : states[0]
   }
 
   const onClick = () => {
     const next = nextState()
+    console.log(onStateChange)
+    let counters = [{ present: 0, late: 0, absent: 0 }]
+    next === "present" ? (counters[0].present += 1) : null
+    console.log(counters[0].present)
+
     setRollState(next)
     if (onStateChange) {
       onStateChange(next)

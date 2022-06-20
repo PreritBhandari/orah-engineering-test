@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import styled from "styled-components"
 import Button from "@material-ui/core/Button"
 import { BorderRadius, Spacing } from "shared/styles/styles"
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick } = props
+  const { isActive, onItemClick, rollStates } = props
 
   return (
     <S.Overlay isActive={isActive}>
@@ -20,10 +20,10 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
         <div>
           <RollStateList
             stateList={[
-              { type: "all", count: 0 },
-              { type: "present", count: 0 },
-              { type: "late", count: 0 },
-              { type: "absent", count: 0 },
+              { type: "all", count: rollStates?.[0] + rollStates?.[1] + rollStates?.[2]  },
+              { type: "present", count: rollStates?.[0] },
+              { type: "late", count: rollStates?.[1] },
+              { type: "absent", count: rollStates?.[2] },
             ]}
           />
           <div style={{ marginTop: Spacing.u6 }}>
