@@ -22,8 +22,6 @@ export const HomeBoardPage: React.FC = () => {
     void getStudents()
   }, [getStudents])
 
-
-
   const [query, setQuery] = React.useState("")
   const [finalData, setFinalData] = React.useState("")
 
@@ -40,10 +38,11 @@ export const HomeBoardPage: React.FC = () => {
 
   const resultData = finalData.length === 0 && !query ? data?.students : finalData
 
-
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
+      console.log(resultData)
+      console.log(rollfinalData)
     }
 
     if (action === "sort") {
@@ -56,11 +55,10 @@ export const HomeBoardPage: React.FC = () => {
         ? resultData.sort((b, a) => a.last_name.localeCompare(b.last_name))
         : resultData.sort((a, b) => a.last_name.localeCompare(b.last_name))
     }
-
-    
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
+
     if (action === "exit") {
       setIsRollMode(false)
     }
@@ -71,6 +69,21 @@ export const HomeBoardPage: React.FC = () => {
   }
 
   const [rollStates, setRollStates] = useState({ present: 0, late: 0, absent: 0 })
+  const [rollStateClick, setRollStateClick] = useState("")
+
+  console.log(resultData)
+
+  let filteredResultData = resultData?.filter((res) => {
+    return rollStateClick === "all"
+      ? res.present + res.late + res.absent
+      : rollStateClick === "present"
+      ? res.present
+      : rollStateClick === "late"
+      ? res.late
+      : rollStateClick === "absent"
+      ? res.absent
+      : null
+  })
 
   return (
     <>
@@ -85,9 +98,11 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && resultData && (
           <>
-            {resultData.map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} setRollStates={setRollStates} />
-            ))}
+            {filteredResultData && rollStateClick && isRollMode
+              ? filteredResultData.map((s) => <StudentListTile key={s.id} isRollMode={isRollMode} student={s} setRollStates={setRollStates} />)
+              : resultData
+              ? resultData.map((s) => <StudentListTile key={s.id} isRollMode={isRollMode} student={s} setRollStates={setRollStates} />)
+              : null}
           </>
         )}
 
@@ -97,7 +112,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} rollStates={rollStates} />
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} rollStates={rollStates} setRollStateClick={setRollStateClick} />
     </>
   )
 }

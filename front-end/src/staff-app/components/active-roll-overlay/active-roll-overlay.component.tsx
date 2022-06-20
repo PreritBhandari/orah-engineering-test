@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, rollStates } = props
+  const { isActive, onItemClick, rollStates, setRollStateClick } = props
 
   return (
     <S.Overlay isActive={isActive}>
@@ -20,11 +20,12 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
         <div>
           <RollStateList
             stateList={[
-              { type: "all", count: rollStates?.[0] + rollStates?.[1] + rollStates?.[2]  },
+              { type: "all", count: rollStates?.[0] + rollStates?.[1] + rollStates?.[2] },
               { type: "present", count: rollStates?.[0] },
               { type: "late", count: rollStates?.[1] },
               { type: "absent", count: rollStates?.[2] },
             ]}
+            setRollStateClick={setRollStateClick}
           />
           <div style={{ marginTop: Spacing.u6 }}>
             <Button color="inherit" onClick={() => onItemClick("exit")}>
