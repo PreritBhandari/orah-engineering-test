@@ -25,8 +25,8 @@ export async function saveActiveRoll(roll: RollInput): Promise<ApiResponse<{}>> 
 function createRoll(id: number, input: RollInput) {
   return {
     id,
-    name: `Roll ${id}`,
-    student_roll_states: input.student_roll_states,
+    name: `Attendance ${id}`,
+    student_roll_states: input,
     completed_at: new Date(),
   }
 }

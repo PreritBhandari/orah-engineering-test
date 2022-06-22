@@ -11,6 +11,8 @@ import { StudentListTile } from "staff-app/components/student-list-tile/student-
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { faAngleDoubleDown, faAngleDoubleUp } from "@fortawesome/free-solid-svg-icons"
 import { Input, InputLabel, MenuItem, Select } from "@material-ui/core"
+import { useNavigate } from "react-router-dom"
+import { saveActiveRoll } from "api/save-active-roll"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -18,12 +20,17 @@ export const HomeBoardPage: React.FC = () => {
   const [toggleSort, setToggleSort] = useState(false)
   const [namevalue, setNameValue] = React.useState("first_name")
 
-  useEffect(() => {
-    void getStudents()
-  }, [getStudents])
+  const [rollStates, setRollStates] = useState({ present: 0, late: 0, absent: 0 })
+  const [rollStateClick, setRollStateClick] = useState("")
 
   const [query, setQuery] = React.useState("")
   const [finalData, setFinalData] = React.useState("")
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    void getStudents()
+  }, [getStudents])
 
   const onSearchChange = (event) => {
     const value = event.target.value
@@ -38,11 +45,27 @@ export const HomeBoardPage: React.FC = () => {
 
   const resultData = finalData.length === 0 && !query ? data?.students : finalData
 
+  const handleNameType = (event) => {
+    setNameValue(event.target.value)
+  }
+
+  const filteredResultData = resultData?.filter((res) => {
+    return rollStateClick === "all"
+      ? res.present + res.late + res.absent
+      : rollStateClick === "present"
+      ? res.present
+      : rollStateClick === "late"
+      ? res.late
+      : rollStateClick === "absent"
+      ? res.absent
+      : null
+  }) 
+
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
       console.log(resultData)
-      console.log(rollfinalData)
+      console.log(rollStates)
     }
 
     if (action === "sort") {
@@ -57,33 +80,30 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
-  const onActiveRollAction = (action: ActiveRollAction) => {
+  const resetRollSet = () => {
+    resultData?.filter((roll) => (roll.present = 0))
+    resultData?.filter((roll) => (roll.absent = 0))
+    resultData?.filter((roll) => (roll.late = 0))
+  }
 
+  const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
+      resetRollSet()
       setIsRollMode(false)
     }
+
+    if (action === "filter") {
+      console.log(data?.students)
+      let completedFilter = resultData?.filter((res) => {
+        return res.present + res.late + res.absent
+      })
+
+      saveActiveRoll(completedFilter)
+      navigate("/staff/activity")
+    }
+
+    resetRollSet()
   }
-
-  const handleNameType = (event) => {
-    setNameValue(event.target.value)
-  }
-
-  const [rollStates, setRollStates] = useState({ present: 0, late: 0, absent: 0 })
-  const [rollStateClick, setRollStateClick] = useState("")
-
-  console.log(resultData)
-
-  let filteredResultData = resultData?.filter((res) => {
-    return rollStateClick === "all"
-      ? res.present + res.late + res.absent
-      : rollStateClick === "present"
-      ? res.present
-      : rollStateClick === "late"
-      ? res.late
-      : rollStateClick === "absent"
-      ? res.absent
-      : null
-  })
 
   return (
     <>

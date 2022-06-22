@@ -32,9 +32,9 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student, setRollS
     let late = finalData.filter((res) => res[0].late === 1)
 
     let rollStates = [present.length, late.length, absent.length]
-    // localStorage.setItem("rollStates", JSON.stringify(rollStates))
+
+    console.log(rollStates)
     setRollStates(rollStates)
-    // localStorage.setItem("rollData", JSON.stringify(finalData))
   }
   return (
     <S.Container>
