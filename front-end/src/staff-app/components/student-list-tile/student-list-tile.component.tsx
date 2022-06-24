@@ -16,15 +16,24 @@ var finalData = []
 
 export const StudentListTile: React.FC<Props> = ({ isRollMode, student, setRollStates }) => {
   const onStateChange = (next) => {
+    let condition = localStorage.getItem("condition")
     let newList = []
+
     student.present = 0
     student.late = 0
     student.absent = 0
 
+    if (condition == "true") {
+      finalData = []
+      localStorage.setItem("condition", "false")
+    }
+
     next === "present" ? (student.present += 1) : next === "late" ? (student.late += 1) : next === "absent" ? (student.absent += 1) : null
 
     newList.push(student)
+
     let index = finalData ? finalData.findIndex((i) => i[0].id == student.id) : null
+
     index === -1 ? finalData.push(newList) : null
 
     let present = finalData.filter((res) => res[0].present === 1)
@@ -33,7 +42,6 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student, setRollS
 
     let rollStates = [present.length, late.length, absent.length]
 
-    console.log(rollStates)
     setRollStates(rollStates)
   }
   return (

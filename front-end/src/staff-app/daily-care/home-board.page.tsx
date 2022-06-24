@@ -49,23 +49,25 @@ export const HomeBoardPage: React.FC = () => {
     setNameValue(event.target.value)
   }
 
-  const filteredResultData = resultData?.filter((res) => {
-    return rollStateClick === "all"
-      ? res.present + res.late + res.absent
-      : rollStateClick === "present"
-      ? res.present
-      : rollStateClick === "late"
-      ? res.late
-      : rollStateClick === "absent"
-      ? res.absent
-      : null
-  }) 
+  const filteredResultData =
+    rollStateClick &&
+    resultData?.filter((res) => {
+      return rollStateClick === "all"
+        ? res.present + res.late + res.absent
+        : rollStateClick === "present"
+        ? res.present
+        : rollStateClick === "late"
+        ? res.late
+        : rollStateClick === "absent"
+        ? res.absent
+        : null
+    })
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
-      console.log(resultData)
       console.log(rollStates)
+      console.log(resultData)
     }
 
     if (action === "sort") {
@@ -88,16 +90,18 @@ export const HomeBoardPage: React.FC = () => {
 
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
+      setRollStateClick(null)
       resetRollSet()
       setIsRollMode(false)
     }
 
     if (action === "filter") {
+      setRollStateClick(null)
+      localStorage.setItem("condition", "true")
       console.log(data?.students)
       let completedFilter = resultData?.filter((res) => {
         return res.present + res.late + res.absent
       })
-
       saveActiveRoll(completedFilter)
       navigate("/staff/activity")
     }

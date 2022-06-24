@@ -23,9 +23,9 @@ export const ActivityPage: React.FC = () => {
 
   const handleOpen = (data) => {
     setRegisters(data)
-    console.log(registers)
     setOpen(true)
   }
+
 
   data?.activity.sort((b, a) => a.date.localeCompare(b.date))
 
@@ -41,6 +41,7 @@ export const ActivityPage: React.FC = () => {
             <TableRow>
               <S.TableCell>ID</S.TableCell>
               <S.TableCell align="center">Roll States</S.TableCell>
+              <S.TableCell align="center">Attendance Date</S.TableCell>
               <S.TableCell align="center">Students</S.TableCell>
             </TableRow>
           </S.TableHead>
@@ -54,6 +55,7 @@ export const ActivityPage: React.FC = () => {
                       {row.entity.id}
                     </TableCell>
                     <TableCell align="center">{row.entity.name}</TableCell>
+                    <TableCell align="center">{new Date(row.entity.completed_at).toDateString()}</TableCell>
                     <TableCell align="center">
                       <Button onClick={() => handleOpen(row.entity.student_roll_states)}>View Students</Button>
                     </TableCell>

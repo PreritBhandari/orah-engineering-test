@@ -27,7 +27,7 @@ export default function ActivityStudents({ registers, open, setOpen }) {
             <Divider />
             <S.Typography2 id="modal-modal-description" sx={{ mt: 2 }}>
               {registers?.map((res) => (
-                <S.Container>
+                <S.Container key={res.id}>
                   <S.Content>
                     <span>{PersonHelper.getFullName(res)}</span>
                     <RollStateIconActivity type={res.present === 1 ? "present" : res.late === 1 ? "late" : res.absent === 1 ? "absent" : null} />
